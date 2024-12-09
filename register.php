@@ -3,29 +3,42 @@ include 'db_config.php';
 include 'header.php';
 
 $registrationSuccess = false; // Variable to check registration status
+$error = ""; // Variable to store error messages
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['confirmPassword'];
 
-    // Check if the username or email already exists
-    $check_sql = "SELECT * FROM users WHERE username = '$username' OR email = '$email'";
-    $result = $conn->query($check_sql);
-
-    if ($result->num_rows > 0) {
-        $error = "Username or Email already exists. Please choose a different one.";
+    // Server-side validation
+    if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
+        $error = "All fields are required.";
+    } elseif (strlen($password) < 8) {
+        $error = "Password must be at least 8 characters long.";
+    } elseif ($password !== $confirmPassword) {
+        $error = "Passwords do not match.";
     } else {
-        // Insert new user if no duplicates
-        $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$password')";
-        if ($conn->query($sql) === TRUE) {
-            $registrationSuccess = true; // Set success flag to true
+        // Check if the username or email already exists
+        $check_sql = "SELECT * FROM users WHERE username = '$username' OR email = '$email'";
+        $result = $conn->query($check_sql);
+
+        if ($result->num_rows > 0) {
+            $error = "Username or Email already exists. Please choose a different one.";
         } else {
-            $error = "Error: " . $conn->error;
+            // Hash password and insert into database
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$hashedPassword')";
+            if ($conn->query($sql) === TRUE) {
+                $registrationSuccess = true; // Set success flag to true
+            } else {
+                $error = "Error: " . $conn->error;
+            }
         }
     }
 }
 ?>
+
 
 <div class="form-container">
     <h1>Register</h1>
@@ -40,62 +53,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="email" name="email" id="email" required>
         
         <label for="password">Password:</label>
-        <input type="password" name="password" id="password" minlength="8" required>
+        <input type="password" name="password" id="password" required>
         <p class="hint">* Password must be at least 8 characters long.</p>
         
         <label for="confirmPassword">Confirm Password:</label>
-        <div class="password-match-container">
-            <input type="password" name="confirmPassword" id="confirmPassword" required>
-            <span id="matchIcon" class="password-icon"></span>
-        </div>
+        <input type="password" name="confirmPassword" id="confirmPassword" required>
+        <span id="matchIcon" class="password-icon"></span>
         
-        <button type="submit" id="registerBtn" disabled>Register</button>
+        <button type="submit" id="registerBtn">Register</button>
     </form>
+
+     <!-- Add link to login page -->
+     <p class="login-link">
+        Already have an account? <a href="login.php">Login</a>
+    </p>
 </div>
 
-<!-- Pop-up Modal -->
-<?php if ($registrationSuccess): ?>
-<div id="successModal" class="modal">
-    <div class="modal-content">
-        <h2>Registration Successful!</h2>
-        <p>You have successfully registered. You can now log in to your account.</p>
-        <button onclick="redirectToLogin()">Login Now</button>
-    </div>
-</div>
 <script>
-    document.getElementById('successModal').style.display = 'block';
-    function redirectToLogin() {
-        window.location.href = 'login.php';
-    }
-</script>
-<?php endif; ?>
-
-<script>
-// JavaScript for password validation
 document.addEventListener('DOMContentLoaded', () => {
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirmPassword');
     const matchIcon = document.getElementById('matchIcon');
-    const registerBtn = document.getElementById('registerBtn');
 
-    function validatePasswords() {
-        if (password.value.length >= 8 && confirmPassword.value.length >= 8) {
-            if (password.value === confirmPassword.value) {
-                matchIcon.textContent = '✔'; // Show tick icon
-                matchIcon.style.color = 'green';
-                registerBtn.disabled = false; // Enable submit button
-            } else {
-                matchIcon.textContent = '✖'; // Show cross icon
-                matchIcon.style.color = 'red';
-                registerBtn.disabled = true; // Disable submit button
-            }
+    // Validate password match as the user types
+    confirmPassword.addEventListener('input', () => {
+        if (password.value.length >= 8 && confirmPassword.value === password.value) {
+            matchIcon.textContent = '✔'; // Show tick icon
+            matchIcon.style.color = 'green';
+        } else if (password.value.length >= 8) {
+            matchIcon.textContent = '✖'; // Show cross icon
+            matchIcon.style.color = 'red';
         } else {
-            matchIcon.textContent = ''; // Clear icon if requirements not met
-            registerBtn.disabled = true;
+            matchIcon.textContent = ''; // Clear icon
         }
-    }
+    });
 
-    password.addEventListener('input', validatePasswords);
-    confirmPassword.addEventListener('input', validatePasswords);
+    // Provide real-time feedback for password length
+    password.addEventListener('input', () => {
+        if (password.value.length >= 8) {
+            password.style.borderColor = 'green';
+        } else {
+            password.style.borderColor = 'red';
+        }
+    });
 });
 </script>

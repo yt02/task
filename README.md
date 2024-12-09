@@ -22,6 +22,7 @@ My Project Setup Instructions
      - Database: `my_project` (or whatever name you gave to your database)
 
 5. Run the project:
-   - Open your browser and go to `http://localhost/my_project/register.php` to view the project.
+   - Open your browser and go to `http://localhost/task/` to view the project.
+   - it will go to the index.php page that allow you to choose for login or register
 
 Enjoy using the application!
