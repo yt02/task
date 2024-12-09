@@ -23,6 +23,6 @@ My Project Setup Instructions
 
 5. Run the project:
    - Open your browser and go to `http://localhost/task/` to view the project.
-   - it will go to the index.php page that allow you to choose for login or register
+   - it will go to the default page that allow you to choose for login or register.
 
 Enjoy using the application!
