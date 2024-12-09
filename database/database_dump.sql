@@ -41,7 +41,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `profile_picture`) VALUES
-(1, 'yt', 'yeethong02@yahoo.com', '$2y$10$5ZGfF6/LqJWbx6lqgGdOnesrjCetnC9wAbnAg6eVlfhkzuWYvGJZS', '2024-12-09 03:01:59', 'assets/default.png'),
+(1, 'yt', 'yeethong@yahoo.com', '$2y$10$5ZGfF6/LqJWbx6lqgGdOnesrjCetnC9wAbnAg6eVlfhkzuWYvGJZS', '2024-12-09 03:01:59', 'assets/default.png'),
 (7, 'abc', 'abc@gmail.com', '$2y$10$AqG06pxP1PZBFJ5HEYfHYOBhxTtGv4F6Jdcz8mVNFspHyO5mFK/bG', '2024-12-09 04:42:40', 'assets/default.png'),
 (8, 'ytt', 'ttt@gmail.com', '$2y$10$AH/kjznPSCDn8YFQAthW...4kEenzhcpNqP88VW56wxXHq3UCrwFy', '2024-12-09 04:49:08', 'assets/default.png');
 
